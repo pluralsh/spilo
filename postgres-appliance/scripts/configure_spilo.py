@@ -703,6 +703,7 @@ def write_wale_environment(placeholders, prefix, overwrite):
                   'WALG_NETWORK_RATE_LIMIT', 'WALG_COMPRESSION_METHOD', 'USE_WALG_BACKUP',
                   'USE_WALG_RESTORE', 'WALG_BACKUP_COMPRESSION_METHOD', 'WALG_BACKUP_FROM_REPLICA',
                   'WALG_SENTINEL_USER_DATA', 'WALG_PREVENT_WAL_OVERWRITE', 'WALG_S3_CA_CERT_FILE']
+    dynamic_names = []
 
     wale = defaultdict(lambda: '')
     for name in ['PGVERSION', 'PGPORT', 'WALE_ENV_DIR', 'SCOPE', 'WAL_BUCKET_SCOPE_PREFIX', 'WAL_BUCKET_SCOPE_SUFFIX',
@@ -712,8 +713,9 @@ def write_wale_environment(placeholders, prefix, overwrite):
     
     # ensure cloud env vars are propagated to wale
     for k, v in placeholders.items():
-        if any(k.startswith(pref) for pref in ["AWS", "GOOGLE"]):
+        if any(k.startswith(pref) for pref in ['AWS', 'GOOGLE', 'AZURE', 'ARM']):
             wale[k] = v
+            dynamic_names.append(k)
 
     if wale.get('WAL_S3_BUCKET') or wale.get('WALE_S3_PREFIX') or wale.get('WALG_S3_PREFIX'):
         wale_endpoint = wale.pop('WALE_S3_ENDPOINT', None)
@@ -761,6 +763,7 @@ def write_wale_environment(placeholders, prefix, overwrite):
         write_envdir_names = ssh_names + walg_names
     else:
         return
+    write_envdir_names += dynamic_names
 
     prefix_env_name = write_envdir_names[0]
     store_type = prefix_env_name[5:].split('_')[0]

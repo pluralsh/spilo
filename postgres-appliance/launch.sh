@@ -37,6 +37,13 @@ chmod -R go-w "$PGROOT"
 chmod 01777 "$RW_DIR/tmp"
 chmod 0700 "$PGDATA"
 
+mkdir /home/postgres/.aws
+cat > /home/postgres/.aws/config <<EOF
+[default]
+region=us-east-2
+EOF
+chown -R postgres: "$PGROOT" /home/postgres/.aws
+
 if [ "$DEMO" = "true" ]; then
     python3 /scripts/configure_spilo.py patroni pgqd certificate pam-oauth2
 elif python3 /scripts/configure_spilo.py all; then

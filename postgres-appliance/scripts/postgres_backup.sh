@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export S3_LOG_LEVEL='DEVEL'
+
 function log
 {
     echo "$(date "+%Y-%m-%d %H:%M:%S.%3N") - $0 - $*"
@@ -31,6 +33,7 @@ if [[ "$USE_WALG_BACKUP" == "true" ]]; then
     export PGHOST=/var/run/postgresql
 else
     readonly WAL_E="wal-e"
+    
 
     # Ensure we don't have more workes than CPU's
     POOL_SIZE=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1)
@@ -40,6 +43,8 @@ fi
 
 BEFORE=""
 LEFT=0
+
+log "Using wal-e binary $WAL_E"
 
 readonly NOW=$(date +%s -u)
 while read -r name last_modified rest; do

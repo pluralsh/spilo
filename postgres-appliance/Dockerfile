@@ -5,6 +5,8 @@ ARG TIMESCALEDB_LEGACY=1.7.5
 ARG DEMO=false
 ARG COMPRESS=false
 
+FROM gcr.io/pluralsh/wal-g:1.0 as wal-g
+
 FROM $BASE_IMAGE as builder-false
 
 ARG DEMO
@@ -366,6 +368,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 ENV PATRONIVERSION=2.0.2
 ENV WALE_VERSION=1.1.1
 ENV WALG_VERSION=v1.0
+
+COPY --from=wal-g /usr/local/bin/wal-g /usr/local/bin/wal-g
+
 RUN export DEBIAN_FRONTEND=noninteractive \
     && set -ex \
     && BUILD_PACKAGES="python3-pip python3-wheel python3-dev git patchutils binutils" \
@@ -382,9 +387,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 \
     && if [ "$DEMO" != "true" ]; then \
         EXTRAS=",etcd,consul,zookeeper,aws" \
-        && curl -sL https://github.com/wal-g/wal-g/releases/download/$WALG_VERSION/wal-g-pg-ubuntu-18.04-amd64.tar.gz \
-                | tar -zxv \
-        && mv wal-g-pg-ubuntu-18.04-amd64 /usr/local/bin/wal-g \
         && apt-get install -y python3-etcd python3-consul python3-kazoo python3-meld3 \
                         python3-boto python3-gevent python3-greenlet python3-cachetools \
                         python3-rsa python3-pyasn1-modules python3-swiftclient liblzo2-dev \
