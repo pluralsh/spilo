@@ -709,6 +709,11 @@ def write_wale_environment(placeholders, prefix, overwrite):
                  'WAL_S3_BUCKET', 'WAL_GCS_BUCKET', 'WAL_GS_BUCKET', 'WAL_SWIFT_BUCKET', 'BACKUP_NUM_TO_RETAIN',
                  'ENABLE_WAL_PATH_COMPAT'] + s3_names + swift_names + gs_names + walg_names + azure_names + ssh_names:
         wale[name] = placeholders.get(prefix + name, '')
+    
+    # ensure cloud env vars are propagated to wale
+    for k, v in placeholders.items():
+        if any(k.startswith(pref) for pref in ["AWS", "GOOGLE"]):
+            wale[k] = v
 
     if wale.get('WAL_S3_BUCKET') or wale.get('WALE_S3_PREFIX') or wale.get('WALG_S3_PREFIX'):
         wale_endpoint = wale.pop('WALE_S3_ENDPOINT', None)
@@ -736,7 +741,7 @@ def write_wale_environment(placeholders, prefix, overwrite):
         else:
             wale['AWS_REGION'] = aws_region
 
-        if not (wale.get('AWS_SECRET_ACCESS_KEY') and wale.get('AWS_ACCESS_KEY_ID')):
+        if not (wale.get('AWS_SECRET_ACCESS_KEY') and wale.get('AWS_ACCESS_KEY_ID')) and not wale.get("AWS_ROLE_ARN"):
             wale['AWS_INSTANCE_PROFILE'] = 'true'
         if wale.get('USE_WALG_BACKUP') and wale.get('WALG_DISABLE_S3_SSE') != 'true' and not wale.get('WALG_S3_SSE'):
             wale['WALG_S3_SSE'] = 'AES256'

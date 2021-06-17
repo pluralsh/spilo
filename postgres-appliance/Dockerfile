@@ -365,7 +365,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 # Install patroni, wal-e and wal-g
 ENV PATRONIVERSION=2.0.2
 ENV WALE_VERSION=1.1.1
-ENV WALG_VERSION=v0.2.19
+ENV WALG_VERSION=v1.0
 RUN export DEBIAN_FRONTEND=noninteractive \
     && set -ex \
     && BUILD_PACKAGES="python3-pip python3-wheel python3-dev git patchutils binutils" \
@@ -382,12 +382,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 \
     && if [ "$DEMO" != "true" ]; then \
         EXTRAS=",etcd,consul,zookeeper,aws" \
-        && curl -sL https://github.com/wal-g/wal-g/releases/download/$WALG_VERSION/wal-g.linux-amd64.tar.gz \
-                | tar -C /usr/local/bin -xz \
-        && strip /usr/local/bin/wal-g \
+        && curl -sL https://github.com/wal-g/wal-g/releases/download/$WALG_VERSION/wal-g-pg-ubuntu-18.04-amd64.tar.gz \
+                | tar -zxv \
+        && mv wal-g-pg-ubuntu-18.04-amd64 /usr/local/bin/wal-g \
         && apt-get install -y python3-etcd python3-consul python3-kazoo python3-meld3 \
                         python3-boto python3-gevent python3-greenlet python3-cachetools \
-                        python3-rsa python3-pyasn1-modules python3-swiftclient \
+                        python3-rsa python3-pyasn1-modules python3-swiftclient liblzo2-dev \
 \
         && find /usr/share/python-babel-localedata/locale-data -type f ! -name 'en_US*.dat' -delete \
 \
