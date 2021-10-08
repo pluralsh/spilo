@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ubuntu:18.04
+ARG BASE_IMAGE=ubuntu:19.04
 ARG PGVERSION=13
 ARG TIMESCALEDB=2.2.1
 ARG TIMESCALEDB_LEGACY=1.7.5
@@ -370,6 +370,8 @@ ENV WALE_VERSION=1.1.1
 ENV WALG_VERSION=v1.0
 
 COPY --from=wal-g /usr/local/bin/wal-g /usr/local/bin/wal-g
+
+RUN wal-g --help
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && set -ex \
