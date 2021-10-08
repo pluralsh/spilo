@@ -1,6 +1,6 @@
 GCP_PROJECT ?= pluralsh
 APP_NAME ?= spilo
-APP_VSN ?= 13.0
+APP_VSN ?= 13.1
 BUILD ?= `git rev-parse --short HEAD`
 DKR_HOST ?= dkr.plural.sh
 PGVERSION ?= 13
